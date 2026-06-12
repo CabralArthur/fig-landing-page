@@ -70,10 +70,25 @@ export function AudioProvider({ children, autoStart = false }: AudioProviderProp
 
     attachGestureUnlock();
 
+    const pauseOnLeave = () => {
+      if (audio.paused) return;
+      audio.pause();
+      setIsPlaying(false);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) pauseOnLeave();
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pagehide", pauseOnLeave);
+
     return () => {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("volumechange", onVolumeChange);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pagehide", pauseOnLeave);
     };
   }, []);
 
