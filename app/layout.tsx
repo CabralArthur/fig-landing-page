@@ -6,12 +6,12 @@ import { siteConfig, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const cairoliFig = localFont({
-  src: "../public/fonts/CairoliNowCondensed-HeavyItalic.ttf",
+  src: "./fonts/CairoliNowCondensed-HeavyItalic.ttf",
   variable: "--font-fig",
-  weight: "900",
-  style: "italic",
-  display: "block",
+  display: "swap",
   preload: true,
+  fallback: ["Georgia", "Times New Roman", "serif"],
+  adjustFontFallback: false,
 });
 
 const bebasNeue = Bebas_Neue({
@@ -117,6 +117,13 @@ export default function RootLayout({
       className={`${bebasNeue.variable} ${dmSans.variable} ${cairoliFig.variable}`}
     >
       <head>
+        <link
+          rel="preload"
+          href="/fonts/CairoliNowCondensed-HeavyItalic.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
         <JsonLd />
       </head>
       <body className="overflow-x-hidden">{children}</body>

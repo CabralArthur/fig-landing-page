@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Cairoli Fig";
+  src: url("/fonts/CairoliNowCondensed-HeavyItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -59,6 +67,13 @@
     .text-outline-marquee {
       -webkit-text-stroke-width: 1.5px;
     }
+  }
+
+  .font-fig {
+    font-family: var(--font-fig), "Cairoli Fig", Georgia, serif;
+    font-style: normal;
+    font-weight: 400;
+    font-synthesis: none;
   }
 
   .reveal-wordmark {

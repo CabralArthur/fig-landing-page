@@ -22,7 +22,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-display)", "Impact", "sans-serif"],
-        fig: ["var(--font-fig)", "Georgia", "serif"],
+        fig: ["var(--font-fig)", "Cairoli Fig", "Georgia", "serif"],
         sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
       },
       letterSpacing: {
