@@ -23,6 +23,8 @@ interface AudioContextValue {
   play: () => Promise<void>;
   pause: () => void;
   unlock: () => void;
+  pauseForVideo: () => void;
+  resumeAfterVideo: () => void;
 }
 
 const AudioContext = createContext<AudioContextValue | null>(null);
@@ -53,6 +55,7 @@ export function AudioProvider({ children, autoStart = false }: AudioProviderProp
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const autoStartRef = useRef(false);
+  const pausedForVideoRef = useRef(false);
 
   useEffect(() => {
     const audio = getAudioInstance();
@@ -105,6 +108,21 @@ export function AudioProvider({ children, autoStart = false }: AudioProviderProp
     }
   }, [play, pause]);
 
+  const pauseForVideo = useCallback(() => {
+    const audio = getAudioInstance();
+    if (!audio.paused) {
+      pausedForVideoRef.current = true;
+      audio.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const resumeAfterVideo = useCallback(() => {
+    if (!pausedForVideoRef.current) return;
+    pausedForVideoRef.current = false;
+    void play();
+  }, [play]);
+
   useEffect(() => {
     if (!autoStart || autoStartRef.current) return;
     autoStartRef.current = true;
@@ -127,7 +145,9 @@ export function AudioProvider({ children, autoStart = false }: AudioProviderProp
   }, [autoStart, play]);
 
   return (
-    <AudioContext.Provider value={{ isPlaying, isMuted, toggle, play, pause, unlock }}>
+    <AudioContext.Provider
+      value={{ isPlaying, isMuted, toggle, play, pause, unlock, pauseForVideo, resumeAfterVideo }}
+    >
       {children}
     </AudioContext.Provider>
   );

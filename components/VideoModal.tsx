@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAudio } from "@/components/AudioProvider";
 import type { StageVideo } from "@/lib/data";
 
 interface VideoModalProps {
@@ -12,6 +13,7 @@ interface VideoModalProps {
 
 export function VideoModal({ video, onClose }: VideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { pauseForVideo, resumeAfterVideo } = useAudio();
 
   useEffect(() => {
     if (!video) return;
@@ -30,10 +32,24 @@ export function VideoModal({ video, onClose }: VideoModalProps) {
   }, [video, onClose]);
 
   useEffect(() => {
-    if (video?.video && videoRef.current) {
-      void videoRef.current.play();
+    if (!video) return;
+
+    pauseForVideo();
+
+    const el = videoRef.current;
+    if (!el || !video.video) {
+      return () => resumeAfterVideo();
     }
-  }, [video]);
+
+    const onPlay = () => pauseForVideo();
+    el.addEventListener("play", onPlay);
+    void el.play();
+
+    return () => {
+      el.removeEventListener("play", onPlay);
+      resumeAfterVideo();
+    };
+  }, [video, pauseForVideo, resumeAfterVideo]);
 
   return (
     <AnimatePresence>
