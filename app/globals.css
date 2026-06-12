@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply overflow-x-hidden bg-background font-sans text-foreground antialiased;
+    cursor: none;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    body {
+      cursor: auto;
+    }
+  }
+
+  ::selection {
+    @apply bg-accent-purple/40 text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-display-hero {
+    @apply font-display uppercase leading-[0.85] tracking-display text-foreground;
+    transform: scaleX(1.1);
+    transform-origin: center;
+  }
+
+  .text-display-hero-left {
+    @apply text-display-hero;
+    transform-origin: left center;
+  }
+
+  .text-display-label {
+    @apply font-display uppercase leading-none tracking-display-wide text-muted;
+  }
+
+  .text-outline-marquee {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(245, 240, 232, 0.22);
+    paint-order: stroke fill;
+    line-height: 1.1;
+    padding-block: 0.15em;
+  }
+
+  @media (min-width: 768px) {
+    .text-outline-marquee {
+      -webkit-text-stroke-width: 1.5px;
+    }
+  }
+
+  .reveal-wordmark {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    backface-visibility: hidden;
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+
+  .marquee-segment {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
