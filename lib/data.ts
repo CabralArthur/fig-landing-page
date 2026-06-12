@@ -40,7 +40,7 @@ export const footerColumns: FooterColumn[] = [
     title: "Vídeos",
     links: [
       { label: "FIG On Stage", href: "#videos" },
-      { label: "Sets ao vivo", href: "#videos" },
+      { label: "Cidades", href: "#cidades" },
     ],
   },
   {
@@ -142,6 +142,21 @@ export const playGenres: PlayGenre[] = [
     description:
       "Fusão de eletrônico e funk — o som que conecta club, baile e pista em alta voltagem.",
   },
+];
+
+export interface PlayedCity {
+  id: string;
+  city: string;
+  detail?: string;
+}
+
+export const playedCities: PlayedCity[] = [
+  { id: "belem", city: "Belém" },
+  { id: "recife", city: "Recife" },
+  { id: "joao-pessoa", city: "João Pessoa" },
+  { id: "fortaleza", city: "Fortaleza", detail: "várias festas" },
+  { id: "sao-luis", city: "São Luís" },
+  { id: "sao-paulo", city: "São Paulo", detail: "Vila JK" },
 ];
 
 export const stageVideos: StageVideo[] = [

@@ -17,7 +17,7 @@ export function getRevealLogoEndScale(isMobile: boolean) {
 }
 
 export function getRevealScrollDistance(isMobile: boolean) {
-  return isMobile ? "+=130%" : "+=220%";
+  return isMobile ? "+=160%" : "+=220%";
 }
 
 export function getRevealEndFontSize(isMobile: boolean) {

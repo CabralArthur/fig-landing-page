@@ -1,4 +1,3 @@
-export const LOGO_FIG_SRC = "/images/logo-fig.svg";
 export const LOGO_FIG_PNG = "/images/logo-fig.png";
 
 export const HERO_NAVY = {

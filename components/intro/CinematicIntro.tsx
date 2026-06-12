@@ -20,7 +20,7 @@ const MIN_HOLD_MS = 700;
 const EXIT_DURATION_MS = 800;
 
 export function CinematicIntro({ onComplete }: CinematicIntroProps) {
-  const { play } = useAudio();
+  const { play, unlock } = useAudio();
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
@@ -46,6 +46,11 @@ export function CinematicIntro({ onComplete }: CinematicIntroProps) {
     }, EXIT_DURATION_MS);
   }, [onComplete]);
 
+  const startAudio = useCallback(() => {
+    unlock();
+    void play();
+  }, [play, unlock]);
+
   useEffect(() => {
     if (!modelReady) return;
     void play();
@@ -60,7 +65,7 @@ export function CinematicIntro({ onComplete }: CinematicIntroProps) {
 
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) > 10) {
-        void play();
+        startAudio();
         startExit();
       }
     };
@@ -74,7 +79,7 @@ export function CinematicIntro({ onComplete }: CinematicIntroProps) {
       clearTimeout(readyTimer);
       window.removeEventListener("wheel", onWheel);
     };
-  }, [startExit, play]);
+  }, [startExit, startAudio]);
 
   return (
     <AnimatePresence>
@@ -85,8 +90,8 @@ export function CinematicIntro({ onComplete }: CinematicIntroProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
+          onPointerDown={startAudio}
           onClick={() => {
-            void play();
             if (!canSkip) return;
             startExit();
           }}

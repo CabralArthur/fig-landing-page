@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
-import { motion } from "framer-motion";
 import { FigLogoReveal } from "@/components/FigLogoReveal";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
@@ -22,6 +21,8 @@ export function AnimatedLogoReveal({ revealContent, children }: AnimatedLogoReve
   const wordmarkRef = useRef<HTMLSpanElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const curtainRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLParagraphElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
@@ -40,23 +41,28 @@ export function AnimatedLogoReveal({ revealContent, children }: AnimatedLogoReve
       !wordmarkRef.current ||
       !glowRef.current ||
       !curtainRef.current ||
+      !overlayRef.current ||
+      !hintRef.current ||
       !contentRef.current
     ) {
       return;
     }
 
     let ctx: { revert: () => void } | null = null;
+    let cancelled = false;
 
     const init = async () => {
       const gsap = (await import("gsap")).default;
       const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+
+      if (cancelled) return;
 
       gsap.registerPlugin(ScrollTrigger);
 
       const startFont = getRevealLogoFontSize(isMobile);
       const endFont = getRevealEndFontSize(isMobile);
       const scrollDistance = getRevealScrollDistance(isMobile);
-      const endBlur = isMobile ? 8 : 18;
+      const endBlur = isMobile ? 6 : 18;
 
       gsap.set(wordmarkRef.current, {
         fontSize: startFont,
@@ -65,12 +71,16 @@ export function AnimatedLogoReveal({ revealContent, children }: AnimatedLogoReve
       });
 
       gsap.set(logoRef.current, {
-        opacity: 0,
+        opacity: 1,
         filter: "blur(0px)",
         force3D: false,
       });
 
       gsap.set(glowRef.current, { opacity: 1 });
+      gsap.set(curtainRef.current, { opacity: 1 });
+      gsap.set(overlayRef.current, { autoAlpha: 1 });
+      gsap.set(hintRef.current, { opacity: 1 });
+      gsap.set(contentRef.current, { opacity: 0, y: isMobile ? 12 : 24 });
 
       ctx = gsap.context(() => {
         const tl = gsap.timeline({
@@ -78,49 +88,60 @@ export function AnimatedLogoReveal({ revealContent, children }: AnimatedLogoReve
             trigger: sectionRef.current,
             start: "top top",
             end: scrollDistance,
-            scrub: isMobile ? 0.8 : 1.1,
+            scrub: isMobile ? 0.65 : 1.1,
             pin: pinRef.current,
-            anticipatePin: 1,
+            anticipatePin: isMobile ? 0 : 1,
             invalidateOnRefresh: true,
+            fastScrollEnd: isMobile,
           },
         });
 
-        tl.to(logoRef.current, { opacity: 1, duration: 0.08, ease: "power2.out" }, 0)
+        tl.fromTo(
+          wordmarkRef.current,
+          { fontSize: startFont },
+          { fontSize: endFont, ease: "none", duration: 1 },
+          0
+        )
           .fromTo(
-            wordmarkRef.current,
-            { fontSize: startFont },
-            { fontSize: endFont, ease: "none" },
-            0
+            hintRef.current,
+            { opacity: 1 },
+            { opacity: 0, ease: "power2.out", duration: 0.12 },
+            0.08
           )
           .fromTo(
             logoRef.current,
             { filter: "blur(0px)" },
-            { filter: `blur(${endBlur}px)`, ease: "power2.in" },
-            0.42
+            { filter: `blur(${endBlur}px)`, ease: "power2.in", duration: 0.35 },
+            isMobile ? 0.32 : 0.42
           )
           .fromTo(
             glowRef.current,
             { opacity: 1 },
-            { opacity: 0, ease: "power2.inOut" },
-            0.5
+            { opacity: 0, ease: "power2.inOut", duration: 0.28 },
+            isMobile ? 0.36 : 0.5
           )
           .fromTo(
             curtainRef.current,
             { opacity: 1 },
-            { opacity: 0, ease: "power2.inOut" },
-            0.55
+            { opacity: 0, ease: "power2.inOut", duration: 0.32 },
+            isMobile ? 0.38 : 0.55
+          )
+          .fromTo(
+            contentRef.current,
+            { opacity: 0, y: isMobile ? 12 : 24 },
+            { opacity: 1, y: 0, ease: "power2.out", duration: 0.38 },
+            isMobile ? 0.36 : 0.5
           )
           .fromTo(
             logoRef.current,
             { opacity: 1 },
-            { opacity: 0, ease: "power2.inOut" },
-            0.7
+            { opacity: 0, ease: "power2.inOut", duration: 0.22 },
+            isMobile ? 0.48 : 0.7
           )
-          .fromTo(
-            contentRef.current,
-            { opacity: 0, y: isMobile ? 16 : 30 },
-            { opacity: 1, y: 0, ease: "power2.out" },
-            0.5
+          .to(
+            overlayRef.current,
+            { autoAlpha: 0, ease: "none", duration: 0.01 },
+            isMobile ? 0.72 : 0.88
           );
       }, sectionRef);
 
@@ -130,6 +151,7 @@ export function AnimatedLogoReveal({ revealContent, children }: AnimatedLogoReve
     void init();
 
     return () => {
+      cancelled = true;
       ctx?.revert();
     };
   }, [isMobile]);
@@ -140,43 +162,46 @@ export function AnimatedLogoReveal({ revealContent, children }: AnimatedLogoReve
         ref={pinRef}
         className="relative h-[100dvh] w-full overflow-hidden bg-black"
       >
-        <div ref={contentRef} className="absolute inset-0 z-0 opacity-0 will-change-[opacity,transform]">
+        <div
+          ref={contentRef}
+          className="absolute inset-0 z-[5] opacity-0 will-change-[opacity,transform]"
+        >
           {revealContent}
         </div>
 
-        <div
-          ref={curtainRef}
-          className="pointer-events-none absolute inset-0 z-10 bg-black"
-          aria-hidden="true"
-        />
-
-        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden px-4">
+        <div ref={overlayRef} className="absolute inset-0 z-20">
           <div
-            ref={glowRef}
-            className="absolute h-[min(52vw,240px)] w-[min(52vw,240px)] rounded-full md:h-[min(38vw,360px)] md:w-[min(38vw,360px)]"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(245,240,232,0.07) 0%, rgba(10,47,110,0.12) 45%, transparent 70%)",
-            }}
+            ref={curtainRef}
+            className="pointer-events-none absolute inset-0 bg-black"
             aria-hidden="true"
           />
 
-          <div
-            ref={logoRef}
-            className="relative flex max-w-full items-center justify-center will-change-[opacity,filter]"
-          >
-            <FigLogoReveal ref={wordmarkRef} />
-          </div>
-        </div>
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden px-4">
+            <div
+              ref={glowRef}
+              className="absolute h-[min(52vw,240px)] w-[min(52vw,240px)] rounded-full md:h-[min(38vw,360px)] md:w-[min(38vw,360px)]"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(245,240,232,0.07) 0%, rgba(10,47,110,0.12) 45%, transparent 70%)",
+              }}
+              aria-hidden="true"
+            />
 
-        <motion.p
-          className="pointer-events-none absolute bottom-6 left-0 right-0 z-20 text-center font-sans text-[10px] uppercase tracking-[0.28em] text-foreground/35 md:bottom-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-        >
-          role para revelar
-        </motion.p>
+            <div
+              ref={logoRef}
+              className="relative flex max-w-full items-center justify-center will-change-[opacity,filter]"
+            >
+              <FigLogoReveal ref={wordmarkRef} />
+            </div>
+          </div>
+
+          <p
+            ref={hintRef}
+            className="pointer-events-none absolute bottom-6 left-0 right-0 text-center font-sans text-[10px] uppercase tracking-[0.28em] text-foreground/35 md:bottom-10"
+          >
+            role para revelar
+          </p>
+        </div>
       </div>
 
       {children}

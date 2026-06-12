@@ -3,22 +3,6 @@
 import { motion } from "framer-motion";
 import { playGenres } from "@/lib/data";
 
-function ArrowIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      aria-hidden="true"
-    >
-      <path d="M1 13L13 1M13 1H4M13 1V10" />
-    </svg>
-  );
-}
-
 export function WhatIPlaySection() {
   return (
     <section id="estilos" className="bg-black px-5 py-20 text-foreground md:px-10 md:py-28">
@@ -40,7 +24,7 @@ export function WhatIPlaySection() {
           {playGenres.map((genre, i) => (
             <motion.div
               key={genre.id}
-              className="group grid grid-cols-1 items-center gap-4 border-b border-foreground/10 py-8 md:grid-cols-[minmax(140px,1fr)_2fr_auto] md:gap-8 md:py-10"
+              className="grid grid-cols-1 items-center gap-4 border-b border-foreground/10 py-8 md:grid-cols-[minmax(140px,1fr)_2fr] md:gap-8 md:py-10"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
@@ -52,9 +36,6 @@ export function WhatIPlaySection() {
               <p className="font-sans text-sm leading-relaxed text-muted md:text-base">
                 {genre.description}
               </p>
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-foreground/25 text-foreground transition-all duration-500 group-hover:scale-105 group-hover:border-foreground/60 group-hover:bg-foreground group-hover:text-background md:justify-self-end">
-                <ArrowIcon />
-              </div>
             </motion.div>
           ))}
         </div>
